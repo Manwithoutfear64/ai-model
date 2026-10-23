@@ -3,44 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Teachable Machine AI App</title>
+    <title>AI Superhero Classifier</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
             text-align: center;
-            background-color: #f4f4f9;
-            margin-top: 50px;
+            padding: 30px 10px;
+            margin: 0;
         }
-        h1 { color: #333; }
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
         button {
-            padding: 12px 24px;
-            font-size: 16px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 6px;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
-            margin-bottom: 20px;
+            transition: background 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        button:hover { background-color: #0056b3; }
+        button:hover {
+            background-color: #0056b3;
+        }
         #webcam-container {
             margin: 20px auto;
             display: inline-block;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
         }
-        #label-container div {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 8px;
-            color: #222;
+        #label-container {
+            max-width: 420px;
+            margin: 20px auto;
+            text-align: left;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .prediction-row {
+            margin-bottom: 12px;
+        }
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .bar-background {
+            background-color: #e9ecef;
+            height: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            background-color: #007bff;
+            height: 100%;
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.1s linear;
         }
     </style>
 </head>
 <body>
 
-    <h1>Teachable Machine Image Model</h1>
+    <h1>AI Superhero Classifier</h1>
     <button type="button" onclick="init()">Start Camera</button>
 
     <div id="webcam-container"></div>
@@ -51,7 +86,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
     <script type="text/javascript">
-        // Your model URL from Teachable Machine
         const URL = "https://teachablemachine.withgoogle.com/models/rj713fnJG/";
 
         let model, webcam, labelContainer, maxPredictions;
@@ -60,28 +94,41 @@
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
 
-            // Load the model and metadata
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
 
-            // Setup the webcam
-            const flip = true; // whether to flip the webcam
-            webcam = new tmImage.Webcam(300, 300, flip); // width, height, flip
-            await webcam.setup(); // request access to webcam
+            const flip = true; 
+            webcam = new tmImage.Webcam(300, 300, flip);
+            await webcam.setup();
             await webcam.play();
             window.requestAnimationFrame(loop);
 
-            // Append elements to DOM
             document.getElementById("webcam-container").appendChild(webcam.canvas);
+            
             labelContainer = document.getElementById("label-container");
-            labelContainer.innerHTML = ""; // Clear previous labels if any
+            labelContainer.innerHTML = ""; 
+
+            // Create progress bar structure for each class
             for (let i = 0; i < maxPredictions; i++) {
-                labelContainer.appendChild(document.createElement("div"));
+                const classTitle = model.getClassLabels()[i];
+                
+                const row = document.createElement("div");
+                row.className = "prediction-row";
+                row.innerHTML = `
+                    <div class="prediction-header">
+                        <span>${classTitle}</span>
+                        <span id="percent-${i}">0%</span>
+                    </div>
+                    <div class="bar-background">
+                        <div id="bar-${i}" class="bar-fill"></div>
+                    </div>
+                `;
+                labelContainer.appendChild(row);
             }
         }
 
         async function loop() {
-            webcam.update(); // Update webcam frame
+            webcam.update();
             await predict();
             window.requestAnimationFrame(loop);
         }
@@ -89,9 +136,14 @@
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
             for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + (prediction[i].probability * 100).toFixed(0) + "%";
-                labelContainer.childNodes[i].innerHTML = classPrediction;
+                const percentValue = (prediction[i].probability * 100).toFixed(0);
+                
+                // Update percentage label
+                document.getElementById(`percent-${i}`).innerText = percentValue + "%";
+                
+                // Update width of the visual progress bar
+                const barFill = document.getElementById(`bar-${i}`);
+                barFill.style.width = percentValue + "%";
             }
         }
     </script>
