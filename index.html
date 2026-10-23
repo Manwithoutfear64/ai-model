@@ -3,83 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Superhero Classifier</title>
+    <title>Knowing Our Heroes - AI Classifier</title>
     <style>
+        :root {
+            --primary-glow: #00d2ff;
+            --secondary-glow: #3a7bd5;
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --text-color: #f3f4f6;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 10%, #1e293b 0%, var(--bg-color) 90%);
+            color: var(--text-color);
             text-align: center;
-            padding: 30px 10px;
             margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
         }
-        h1 {
-            color: #1a1a1a;
-            margin-bottom: 20px;
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
         }
-        button {
-            background-color: #007bff;
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #9ca3af;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 30px;
             cursor: pointer;
-            transition: background 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 114, 255, 0.4);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 114, 255, 0.6);
         }
-        #webcam-container {
-            margin: 20px auto;
-            display: inline-block;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        }
-        #label-container {
-            max-width: 420px;
-            margin: 20px auto;
-            text-align: left;
-            background: white;
+
+        .camera-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
             padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+
+        #webcam-container canvas {
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: block;
         }
+
+        #label-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+
         .prediction-row {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
+
+        .prediction-row:last-child {
+            margin-bottom: 0;
+        }
+
         .prediction-header {
             display: flex;
             justify-content: space-between;
-            font-size: 15px;
+            font-size: 0.95rem;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
+            color: #e5e7eb;
+            margin-bottom: 6px;
         }
+
         .bar-background {
-            background-color: #e9ecef;
-            height: 16px;
-            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            height: 12px;
+            border-radius: 6px;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
         .bar-fill {
-            background-color: #007bff;
+            background: linear-gradient(90deg, #3a7bd5, #00d2ff);
             height: 100%;
             width: 0%;
-            border-radius: 8px;
-            transition: width 0.1s linear;
+            border-radius: 6px;
+            transition: width 0.08s ease-out;
         }
     </style>
 </head>
 <body>
 
-    <h1>AI Superhero Classifier</h1>
-    <button type="button" onclick="init()">Start Camera</button>
+    <div class="container">
+        <h1 class="hero-title">Knowing Our Heroes</h1>
+        <p class="hero-subtitle">Real-time AI character recognition interface</p>
 
-    <div id="webcam-container"></div>
-    <div id="label-container"></div>
+        <button type="button" class="action-btn" onclick="init()">Initialize Scanner</button>
+
+        <div>
+            <div class="camera-card">
+                <div id="webcam-container"></div>
+            </div>
+        </div>
+
+        <div id="label-container">
+            <p style="text-align: center; color: #6b7280; margin: 0;">Scanner offline. Click initialize to begin tracking...</p>
+        </div>
+    </div>
 
     <!-- TensorFlow.js and Teachable Machine Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -98,17 +161,18 @@
             maxPredictions = model.getTotalClasses();
 
             const flip = true; 
-            webcam = new tmImage.Webcam(300, 300, flip);
+            webcam = new tmImage.Webcam(320, 320, flip);
             await webcam.setup();
             await webcam.play();
             window.requestAnimationFrame(loop);
 
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            const webcamContainer = document.getElementById("webcam-container");
+            webcamContainer.innerHTML = "";
+            webcamContainer.appendChild(webcam.canvas);
             
             labelContainer = document.getElementById("label-container");
             labelContainer.innerHTML = ""; 
 
-            // Create progress bar structure for each class
             for (let i = 0; i < maxPredictions; i++) {
                 const classTitle = model.getClassLabels()[i];
                 
@@ -138,12 +202,13 @@
             for (let i = 0; i < maxPredictions; i++) {
                 const percentValue = (prediction[i].probability * 100).toFixed(0);
                 
-                // Update percentage label
-                document.getElementById(`percent-${i}`).innerText = percentValue + "%";
+                const percentEl = document.getElementById(`percent-${i}`);
+                const barEl = document.getElementById(`bar-${i}`);
                 
-                // Update width of the visual progress bar
-                const barFill = document.getElementById(`bar-${i}`);
-                barFill.style.width = percentValue + "%";
+                if (percentEl && barEl) {
+                    percentEl.innerText = percentValue + "%";
+                    barEl.style.width = percentValue + "%";
+                }
             }
         }
     </script>
